@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device — Checkout</title>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+    body {
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #202044 0%, #0d0d18 45%, #08080e 100%);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+    }
+    .container {
+        width: 100%;
+        max-width: 1100px;
+        background: rgba(20, 20, 32, 0.92);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 30px 100px rgba(0,0,0,.5);
+        overflow: hidden;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 28px;
+        font-size: 30px;
+    }
+    .product {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+        background: rgba(255,255,255,.04);
+        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+    .product img {
+        width: 130px;
+        height: 130px;
+        object-fit: contain;
+        border-radius: 16px;
+        background: #fff;
+    }
+    .product-info { flex: 1; }
+    .product-info h2 { font-size: 23px; margin-bottom: 10px; }
+    .price { color: #a5b4fc; font-size: 22px; font-weight: bold; }
+
+    .methods-wrapper { position: relative; margin-bottom: 28px; }
+    .methods { display: flex; gap: 15px; justify-content: center; padding: 5px; }
+    .method {
+        flex: 1;
+        max-width: 250px;
+        height: 90px; border-radius: 18px;
+        background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: .25s; font-size: 18px; font-weight: bold;
+    }
+    .method:hover { transform: translateY(-3px); background: rgba(255,255,255,.09); }
+    .method.active { border: 2px solid #818cf8; background: rgba(99,102,241,.16); box-shadow: 0 0 25px rgba(99,102,241,.2); }
+
+    .payment-panel, .shipping-panel { display: none; animation: panelAppear .4s ease; }
+    .payment-panel.active, .shipping-panel.active { display: block; }
+    @keyframes panelAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .apple-panel, .google-panel { min-height: 220px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; gap: 15px; }
+    .pay-logo { font-size: 55px; }
+    .demo { color: #9292a8; font-size: 14px; }
+
+    .email-field {
+        width: 100%;
+        max-width: 400px;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: left;
+    }
+
+    .card-form, .shipping-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .input-group { display: flex; flex-direction: column; gap: 8px; }
+    .input-group.full { grid-column: 1 / -1; }
+    label { color: #aaaabd; font-size: 14px; }
+    input, select { width: 100%; padding: 15px; border-radius: 13px; border: 1px solid rgba(255,255,255,.1); background: #10101a; color: white; outline: none; font-size: 16px; }
+    input:focus, select:focus { border-color: #818cf8; box-shadow: 0 0 15px rgba(99,102,241,.2); }
+
+    .pay-button { width: 100%; margin-top: 30px; padding: 18px; border: none; border-radius: 16px; background: linear-gradient(135deg,#6366f1,#8b5cf6); color: white; font-size: 18px; font-weight: bold; cursor: pointer; transition: .25s; }
+    .pay-button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(99,102,241,.3); }
+
+    /* SUCCESS */
+    .success { position: relative; min-height: 420px; display: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; color: #fff; text-align: center; }
+    .success.show { display: flex; }
+    .success-glow { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: rgba(99,102,241,.2); filter: blur(60px); pointer-events: none; }
+    .success-circle { position: relative; z-index: 2; width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#6366f1,#8b5cf6); box-shadow: 0 0 0 1px rgba(255,255,255,.15), 0 0 80px rgba(99,102,241,.55); transform: scale(0); animation: circlePop .8s cubic-bezier(.16,1.4,.3,1) .15s forwards; overflow: hidden; transition: width .65s cubic-bezier(.16,1.4,.3,1), border-radius .65s ease, box-shadow .65s ease; }
+    .success-circle.thanks-mode { width: 230px; border-radius: 70px; }
+    @keyframes circlePop { 0% { transform: scale(0); } 65% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .check { width: 45px; height: 25px; border-left: 6px solid #ffffff; border-bottom: 6px solid #ffffff; transform: rotate(-45deg) scale(0); animation: checkAppear .55s cubic-bezier(.2,1.5,.4,1) .75s forwards; }
+    @keyframes checkAppear { 0% { transform: rotate(-45deg) scale(0); opacity: 0; } 70% { transform: rotate(-45deg) scale(1); opacity: 1; } 100% { transform: rotate(-45deg) scale(1); opacity: 1; } }
+    .check.hide { animation: checkDisappear .6s ease forwards; }
+    @keyframes checkDisappear { 0% { transform: rotate(-45deg) scale(1); opacity: 1; filter: blur(0); } 100% { transform: rotate(-45deg) scale(1); opacity: 0; filter: blur(3px); } }
+    .thanks { position: absolute; font-size: 21px; font-weight: 700; opacity: 0; transform: scale(.5); white-space: nowrap; }
+    .thanks.show { animation: thanksAppear .65s cubic-bezier(.16,1.4,.3,1) forwards; }
+    @keyframes thanksAppear { 0% { opacity: 0; transform: scale(.5); } 70% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+    .success-text { position: relative; z-index: 2; margin: 25px 0 0; color: #858592; font-size: 16px; opacity: 0; transform: translateY(15px); animation: textUp .6s ease 1.4s forwards; }
+    @keyframes textUp { to { opacity: 1; transform: translateY(0); } }
+    .continue { position: relative; z-index: 5; margin-top: 30px; padding: 13px 25px; border: none; border-radius: 12px; background: rgba(255,255,255,.08); color: white; cursor: pointer; opacity: 0; animation: textUp .6s ease 2s forwards; }
+    @media (max-width: 650px) { body { padding: 10px; } .container { padding: 20px; border-radius: 20px; } .card-form, .shipping-form { grid-template-columns: 1fr; } .input-group.full { grid-column: auto; } .product { flex-direction: column; text-align: center; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div id="checkout">
+
+    <h1>🛒 Checkout</h1>
+
+    <div class="product">
+        {% if product.image %}
+            <img src="{{ product.image }}" alt="{{ product.name }}">
+        {% endif %}
+        <div class="product-info">
+            <h2>{{ product.name }}</h2>
+            {% if product.description %}
+                <p style="color:#9292a8; margin-bottom:12px;">{{ product.description }}</p>
+            {% endif %}
+            <div class="price">£{{ "%.2f"|format(product.price) }}</div>
+        </div>
+    </div>
+
+    <!-- STEP 1: PAYMENT METHOD SELECTION -->
+    <div id="paymentSection">
+        <div class="methods-wrapper">
+            <div class="methods" id="methods">
+                <div class="method active" onclick="selectMethod('apple', this)"> Apple Pay</div>
+                <div class="method" onclick="selectMethod('google', this)">G Google Pay</div>
+            </div>
+        </div>
+
+        <!-- APPLE PAY -->
+        <div class="payment-panel active" id="apple">
+            <div class="apple-panel">
+                <div class="pay-logo"></div>
+                <h2>Apple Pay</h2>
+                <p class="demo">Авторизуйтесь через Apple ID</p>
+                <div class="email-field">
+                    <label for="appleEmail">Apple ID (Email)</label>
+                    <input type="email" id="appleEmail" placeholder="example@icloud.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOGLE PAY -->
+        <div class="payment-panel" id="google">
+            <div class="google-panel">
+                <div class="pay-logo">G</div>
+                <h2>Google Pay</h2>
+                <p class="demo">Быстрая оплата через Google</p>
+            </div>
+        </div>
+
+        <button class="pay-button" onclick="proceedToShipping()">Continue to Shipping</button>
+    </div>
+
+    <!-- STEP 2: SHIPPING SECTION (Ukrposhta / Nova Poshta) -->
+    <div class="shipping-panel" id="shippingSection">
+        <h2 style="margin-bottom: 20px; font-size: 22px;">📦 Delivery Details</h2>
+        <div class="shipping-form">
+            <div class="input-group full">
+                <label>Choose Delivery Service</label>
+                <select id="deliveryService">
+                    <option value="nova">Нова Пошта (Nova Poshta)</option>
+                    <option value="ukr">Укрпошта (Ukrposhta)</option>
+                </select>
+            </div>
+            <div class="input-group full">
+                <label>Delivery Address / Branch Number</label>
+                <input type="text" id="deliveryAddress" placeholder="City, Street / Branch #">
+            </div>
+        </div>
+        <button class="pay-button" onclick="finalizePayment()">Pay £{{ "%.2f"|format(product.price) }}</button>
+    </div>
+
+</div>
+
+<!-- SUCCESS -->
+<div class="success" id="success">
+    <div class="success-glow"></div>
+    <div class="success-circle" id="successCircle">
+        <div class="check" id="check">✓</div>
+        <div class="thanks" id="thanks">Спасибо!</div>
+    </div>
+    <p class="success-text">Оплата успешно завершена</p>
+    <button class="continue" onclick="window.location.href='/products'">Continue shopping</button>
+</div>
+
+</div>
+
+<script>
+    let selectedMethod = "apple";
+    const languages = ["Спасибо!", "Thank you!", "Gracias!", "Merci!", "Danke!", "Grazie!", "Obrigado!", "ありがとう!", "谢谢!"];
+    let languageIndex = 0;
+    let animationStarted = false;
+
+    function selectMethod(method, element) {
+        selectedMethod = method;
+        document.querySelectorAll(".method").forEach(item => item.classList.remove("active"));
+        element.classList.add("active");
+        document.querySelectorAll(".payment-panel").forEach(panel => panel.classList.remove("active"));
+        document.getElementById(method).classList.add("active");
+    }
+
+    function proceedToShipping() {
+        if (selectedMethod === "apple") {
+            const email = document.getElementById("appleEmail").value;
+            if (!email.trim()) {
+                alert("Пожалуйста, введите ваш Email Apple ID.");
+                return;
+            }
+        }
+
+        // Hide payment step, show shipping step
+        document.getElementById("paymentSection").style.display = "none";
+        document.getElementById("shippingSection").classList.add("active");
+    }
+
+    function finalizePayment() {
+        const address = document.getElementById("deliveryAddress").value;
+        if (!address.trim()) {
+            alert("Please enter your delivery address or branch.");
+            return;
+        }
+
+        document.getElementById("shippingSection").style.display = "none";
+        document.getElementById("success").classList.add("show");
+        thankYouAnimation();
+    }
+
+    function thankYouAnimation() {
+        if (animationStarted) return;
+        animationStarted = true;
+
+        const check = document.getElementById("check");
+        const thanks = document.getElementById("thanks");
+        const circle = document.getElementById("successCircle");
+
+        setTimeout(() => { check.classList.add("hide"); }, 1600);
+        setTimeout(() => { circle.classList.add("thanks-mode"); thanks.classList.add("show"); }, 2100);
+        setTimeout(() => {
+            setInterval(() => {
+                languageIndex = (languageIndex + 1) % languages.length;
+                thanks.classList.remove("change");
+                void thanks.offsetWidth;
+                thanks.textContent = languages[languageIndex];
+                thanks.classList.add("change");
+            }, 1800);
+        }, 3100);
+    }
+</script>
+</body>
+</html>

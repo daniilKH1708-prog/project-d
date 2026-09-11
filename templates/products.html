@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Device — Products</title>
+
+    <style>
+        /* ЦВЕТОВЫЕ ТЕМЫ */
+        :root {
+            --bg-color: #09090f;
+            --text-color: #ffffff;
+            --text-secondary: #777786;
+            --header-bg: rgba(9, 9, 15, 0.78);
+            --header-border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.07);
+            --card-bg: rgba(20, 20, 30, 0.78);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #6366f1;
+            --accent-hover: #818cf8;
+            --img-bg: rgba(255, 255, 255, 0.04);
+            --empty-bg: rgba(20, 20, 30, 0.7);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f3f4f6;
+            --text-color: #111827;
+            --text-secondary: #6b7280;
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --header-border: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+            --accent-color: #4f46e5;
+            --accent-hover: #6366f1;
+            --img-bg: rgba(0, 0, 0, 0.03);
+            --empty-bg: #ffffff;
+        }
+
+        [data-theme="neon"] {
+            --bg-color: #0b001a;
+            --text-color: #f3e8ff;
+            --text-secondary: #a855f7;
+            --header-bg: rgba(18, 3, 38, 0.85);
+            --header-border: rgba(216, 180, 254, 0.2);
+            --input-bg: rgba(168, 85, 247, 0.15);
+            --card-bg: rgba(24, 9, 43, 0.85);
+            --card-border: rgba(192, 132, 252, 0.25);
+            --accent-color: #d946ef;
+            --accent-hover: #f0abfc;
+            --img-bg: rgba(168, 85, 247, 0.1);
+            --empty-bg: rgba(24, 9, 43, 0.85);
+        }
+
+        [data-theme="cyberpunk"] {
+            --bg-color: #0d0f12;
+            --text-color: #00ffcc;
+            --text-secondary: #ff0055;
+            --header-bg: rgba(13, 15, 18, 0.88);
+            --header-border: rgba(0, 255, 204, 0.3);
+            --input-bg: rgba(255, 0, 85, 0.1);
+            --card-bg: rgba(20, 24, 30, 0.85);
+            --card-border: rgba(0, 255, 204, 0.25);
+            --accent-color: #ff0055;
+            --accent-hover: #ff3377;
+            --img-bg: rgba(0, 255, 204, 0.05);
+            --empty-bg: rgba(20, 24, 30, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* КАНВАС ДЛЯ ИНТЕРАКТИВНОЙ АНИМАЦИИ НА ФОНЕ */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        header {
+            height: 75px;
+            padding: 0 4%;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--header-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--header-border);
+        }
+
+        .logo {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--accent-hover);
+        }
+
+        .search {
+            flex: 1;
+            max-width: 700px;
+            display: flex;
+            margin: auto;
+        }
+
+        .search input {
+            width: 100%;
+            height: 43px;
+            padding: 0 17px;
+            background: var(--input-bg);
+            border: 1px solid var(--header-border);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            outline: none;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        .search input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search input:focus {
+            border-color: var(--accent-hover);
+        }
+
+        .search button {
+            width: 52px;
+            border: none;
+            border-radius: 0 12px 12px 0;
+            cursor: pointer;
+            font-size: 17px;
+            background: var(--accent-color);
+            color: white;
+            transition: 0.3s;
+        }
+
+        .search button:hover {
+            background: var(--accent-hover);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        .hello {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .theme-toggle {
+            background: var(--input-bg);
+            border: 1px solid var(--header-border);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--header-border);
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1500px;
+            margin: auto;
+            padding: 45px 4%;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 35px;
+            letter-spacing: -1px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            margin-top: 7px;
+        }
+
+        .add-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: 13px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+            transition: 0.3s;
+        }
+
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 35px rgba(99, 102, 241, 0.35);
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-size: 26px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--header-border);
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+            gap: 22px;
+        }
+
+        .product-card {
+            min-height: 430px;
+            padding: 18px;
+            border-radius: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            transition: 0.35s;
+            backdrop-filter: blur(10px);
+            animation: productIn 0.55s ease both;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-hover);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        @keyframes productIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-image,
+        .no-image {
+            width: 100%;
+            height: 235px;
+            border-radius: 15px;
+            margin-bottom: 17px;
+        }
+
+        .product-image {
+            object-fit: contain;
+            background: var(--img-bg);
+            transition: 0.4s;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.04);
+        }
+
+        .no-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--img-bg);
+            font-size: 55px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .product-name a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .product-name a:hover {
+            color: var(--accent-hover);
+        }
+
+        .product-category {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .rating {
+            color: #fbbf24;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .product-price {
+            color: var(--text-color);
+            font-size: 23px;
+            font-weight: bold;
+            margin-top: 13px;
+        }
+
+        .add-cart {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 11px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent-color);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .add-cart:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .empty {
+            padding: 70px 20px;
+            text-align: center;
+            border-radius: 20px;
+            color: var(--text-secondary);
+            background: var(--empty-bg);
+            border: 1px solid var(--card-border);
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+            padding: 30px;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--header-border);
+        }
+
+        @media (max-width: 800px) {
+            header {
+                height: auto;
+                padding: 13px 18px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .search {
+                order: 3;
+                flex-basis: 100%;
+                max-width: none;
+            }
+
+            .hello {
+                display: none;
+            }
+
+            .top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            main {
+                padding: 30px 18px;
+            }
+
+            .products {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+            }
+
+            .product-card {
+                min-height: 380px;
+                padding: 12px;
+                border-radius: 16px;
+            }
+
+            .product-image,
+            .no-image {
+                height: 175px;
+            }
+
+            .product-name {
+                font-size: 15px;
+            }
+
+            .product-price {
+                font-size: 19px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .products {
+                grid-template-columns: 1fr;
+            }
+
+            .product-image,
+            .no-image {
+                height: 230px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ФОНОВЫЙ КАНВАС ДЛЯ ЧАСТИЦ -->
+<canvas id="bgCanvas"></canvas>
+
+<header>
+
+    <a href="{{ url_for('products') }}" class="logo">
+        De<span>Vice</span>
+    </a>
+
+    <form class="search" method="GET" action="{{ url_for('products') }}">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search products..."
+            value="{{ request.args.get('search', '') }}"
+        >
+
+        <button type="submit">
+            🔍
+        </button>
+
+    </form>
+
+    <div class="header-right">
+
+        <!-- КНОПКА СМЕНЫ ТЕМ -->
+        <button id="themeToggle" class="theme-toggle" title="Change theme">
+            <span id="themeIcon">🌙</span>
+            <span id="themeName">Dark</span>
+        </button>
+
+        {% if session.get('username') %}
+
+            <span class="hello">
+                Hello, {{ session['username'] }}
+            </span>
+
+            <a href="{{ url_for('cart') }}" class="cart">
+                🛒 Cart
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="header-link">
+                Logout
+            </a>
+
+        {% else %}
+
+            <a href="{{ url_for('login') }}" class="header-link">
+                Login
+            </a>
+
+            <a href="{{ url_for('register') }}" class="header-link">
+                Register
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <div class="top">
+
+        <div>
+
+            <h1 class="page-title">
+                Explore products
+            </h1>
+
+            <p class="page-subtitle">
+                Find something you like
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('get_products') }}"
+            class="add-button"
+        >
+            ＋ Add your product
+        </a>
+
+    </div>
+
+
+    {% if products %}
+
+        {% set categories = [] %}
+
+        {% for product in products %}
+
+            {% if product.category and product.category not in categories %}
+
+                {% set _ = categories.append(product.category) %}
+
+            {% endif %}
+
+        {% endfor %}
+
+
+        {% for category in categories %}
+
+            <section class="category">
+
+                <h2 class="category-title">
+                    {{ category }}
+                </h2>
+
+                <div class="products">
+
+                    {% for product in products %}
+
+                        {% if product.category == category %}
+
+                            <div class="product-card">
+
+                                {% if product.image %}
+
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}">
+
+                                        <img
+                                            src="{{ url_for('static', filename='images/' + product.image) }}"
+                                            alt="{{ product.name }}"
+                                            class="product-image"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                        >
+
+                                    </a>
+
+                                    <div
+                                        class="no-image"
+                                        style="display:none;"
+                                    >
+                                        📦
+                                    </div>
+
+                                {% else %}
+
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}">
+
+                                        <div class="no-image">
+                                            📦
+                                        </div>
+
+                                    </a>
+
+                                {% endif %}
+
+
+                                <div class="product-name">
+
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}">
+                                        {{ product.name }}
+                                    </a>
+
+                                </div>
+
+
+                                <div class="product-category">
+                                    {{ product.category }}
+                                </div>
+
+
+                                {% if product.rating %}
+
+                                    <div class="rating">
+                                        ⭐ {{ product.rating }}/5
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="product-price">
+                                    £{{ "%.2f"|format(product.price) }}
+                                </div>
+
+
+                                <a
+                                    href="{{ url_for('add_to_cart', product_id=product.id) }}"
+                                    class="add-cart"
+                                >
+                                    🛒 Add to cart
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% endfor %}
+
+
+        {% set has_uncategorized = false %}
+
+        {% for product in products %}
+
+            {% if not product.category %}
+
+                {% set has_uncategorized = true %}
+
+            {% endif %}
+
+        {% endfor %}
+
+
+        {% if has_uncategorized %}
+
+            <section class="category">
+
+                <h2 class="category-title">
+                    Other
+                </h2>
+
+                <div class="products">
+
+                    {% for product in products %}
+
+                        {% if not product.category %}
+
+                            <div class="product-card">
+
+                                {% if product.image %}
+
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}">
+
+                                        <img
+                                            src="{{ url_for('static', filename='images/' + product.image) }}"
+                                            alt="{{ product.name }}"
+                                            class="product-image"
+                                        >
+
+                                    </a>
+
+                                {% else %}
+
+                                    <div class="no-image">
+                                        📦
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="product-name">
+
+                                    <a href="{{ url_for('product_details', product_id=product.id) }}">
+                                        {{ product.name }}
+                                    </a>
+
+                                </div>
+
+
+                                {% if product.rating %}
+
+                                    <div class="rating">
+                                        ⭐ {{ product.rating }}/5
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="product-price">
+                                    £{{ "%.2f"|format(product.price) }}
+                                </div>
+
+
+                                <a
+                                    href="{{ url_for('add_to_cart', product_id=product.id) }}"
+                                    class="add-cart"
+                                >
+                                    🛒 Add to cart
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <div class="empty">
+
+            <div style="font-size:50px;margin-bottom:15px;">
+                🔎
+            </div>
+
+            <h2>
+                No products found
+            </h2>
+
+            <p style="margin-top:8px;">
+                Try another search or add your first product.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+
+<footer>
+    © 2026 MyStore
+</footer>
+
+<script>
+    // 1. ПЕРЕКЛЮЧЕНИЕ ТЕМ
+    const themes = [
+        { id: 'dark', name: 'Dark', icon: '🌙' },
+        { id: 'light', name: 'Light', icon: '☀️' },
+        { id: 'neon', name: 'Neon', icon: '🔮' },
+        { id: 'cyberpunk', name: 'Cyber', icon: '⚡' }
+    ];
+
+    let currentThemeIndex = 0;
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeName = document.getElementById('themeName');
+
+    function applyTheme(theme) {
+        if (theme.id === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme.id);
+        }
+        themeIcon.textContent = theme.icon;
+        themeName.textContent = theme.name;
+        localStorage.setItem('selectedTheme', theme.id);
+    }
+
+    const savedThemeId = localStorage.getItem('selectedTheme');
+    if (savedThemeId) {
+        const foundIndex = themes.findIndex(t => t.id === savedThemeId);
+        if (foundIndex !== -1) {
+            currentThemeIndex = foundIndex;
+        }
+    }
+    applyTheme(themes[currentThemeIndex]);
+
+    themeToggleBtn.addEventListener('click', () => {
+        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+        applyTheme(themes[currentThemeIndex]);
+    });
+
+    // 2. ИНТЕРАКТИВНАЯ ФОНОВАЯ АНИМАЦИЯ (ЧАСТИЦЫ)
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const particleCount = 65;
+
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            radius: Math.random() * 2 + 1
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        const computedStyle = getComputedStyle(document.documentElement);
+        const particleColor = computedStyle.getPropertyValue('--accent-hover').trim() || '#818cf8';
+
+        for (let i = 0; i < particleCount; i++) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = particleColor;
+            ctx.globalAlpha = 0.4;
+            ctx.fill();
+
+            for (let j = i + 1; j < particleCount; j++) {
+                let p2 = particles[j];
+                let dx = p.x - p2.x;
+                let dy = p.y - p2.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 130) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = particleColor;
+                    ctx.globalAlpha = (1 - dist / 130) * 0.25;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+</script>
+
+</body>
+</html>

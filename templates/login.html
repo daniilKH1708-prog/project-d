@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeVice— Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(99,102,241,.18), transparent 35%),
+                radial-gradient(circle at 80% 80%, rgba(139,92,246,.14), transparent 35%),
+                #08080f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* BACKGROUND */
+        .background {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .25;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .orb.one {
+            width: 300px;
+            height: 300px;
+            background: #6366f1;
+            top: -120px;
+            left: -100px;
+        }
+
+        .orb.two {
+            width: 260px;
+            height: 260px;
+            background: #8b5cf6;
+            right: -100px;
+            bottom: -100px;
+            animation-delay: -4s;
+        }
+
+        .orb.three {
+            width: 180px;
+            height: 180px;
+            background: #4f46e5;
+            right: 25%;
+            top: 20%;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -25px); }
+        }
+
+        /* MAIN */
+        .wrapper {
+            position: relative;
+            width: 900px;
+            max-width: 94%;
+            min-height: 560px;
+            display: flex;
+            background: rgba(17,17,27,.78);
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 30px;
+            overflow: hidden;
+            backdrop-filter: blur(25px);
+            box-shadow:
+                0 30px 100px rgba(0,0,0,.55),
+                0 0 80px rgba(99,102,241,.12);
+            animation: wrapperAppear .9s cubic-bezier(.16,1,.3,1);
+        }
+
+        @keyframes wrapperAppear {
+            from {
+                opacity: 0;
+                transform: translateY(35px) scale(.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* LEFT SIDE */
+        .welcome {
+            width: 45%;
+            position: relative;
+            padding: 55px 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(99,102,241,.18),
+                    rgba(139,92,246,.05)
+                );
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 18px;
+            background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%,100% { filter: brightness(1); }
+            50% { filter: brightness(1.4); }
+        }
+
+        .welcome h2 {
+            font-size: 30px;
+            line-height: 1.1;
+            margin-bottom: 15px;
+        }
+
+        .welcome p {
+            color: #9696aa;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .line {
+            width: 60px;
+            height: 4px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+            margin: 25px 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            color: #b4b4c5;
+            font-size: 14px;
+            opacity: 0;
+            animation: featureAppear .6s ease forwards;
+        }
+
+        .feature:nth-child(1) { animation-delay: .4s; }
+        .feature:nth-child(2) { animation-delay: .55s; }
+        .feature:nth-child(3) { animation-delay: .7s; }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(99,102,241,.14);
+        }
+
+        @keyframes featureAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* RIGHT */
+        .auth {
+            width: 55%;
+            padding: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-inner {
+            width: 100%;
+            max-width: 390px;
+        }
+
+        /* LANGUAGE */
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .language {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+        }
+
+        .lang {
+            border: none;
+            background: transparent;
+            color: #77778b;
+            padding: 7px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .lang:hover { color: white; }
+        .lang.active {
+            background: rgba(99,102,241,.25);
+            color: white;
+        }
+
+        /* FORM */
+        .form-title {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            color: #858596;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form {
+            animation: formAppear .5s cubic-bezier(.16,1,.3,1);
+        }
+
+        @keyframes formAppear {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 17px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(8,8,15,.65);
+            color: white;
+            outline: none;
+            font-size: 15px;
+            transition: border .3s, box-shadow .3s, transform .3s, background .3s;
+        }
+
+        .input-box input::placeholder { color: #666678; }
+        .input-box input:hover { background: rgba(15,15,25,.8); }
+        .input-box input:focus {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(99,102,241,.10), 0 0 25px rgba(99,102,241,.15);
+            transform: translateY(-1px);
+        }
+
+        /* BUTTON */
+        .main-button {
+            width: 100%;
+            padding: 17px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 10px 30px rgba(99,102,241,.25);
+            transition: transform .3s, box-shadow .3s, filter .3s;
+        }
+
+        .main-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99,102,241,.4);
+            filter: brightness(1.1);
+        }
+
+        .main-button:active { transform: scale(.97); }
+
+        /* SWITCH & LINKS */
+        .switch {
+            margin-top: 24px;
+            text-align: center;
+            color: #77778b;
+            font-size: 14px;
+        }
+
+        .switch-link {
+            color: #a5b4fc;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 4px;
+            transition: .3s;
+        }
+
+        .switch-link:hover {
+            color: white;
+            text-shadow: 0 0 15px #818cf8;
+        }
+
+        /* BACK */
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 22px;
+            color: #77778b;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color .3s, transform .3s, text-shadow .3s;
+        }
+
+        .back span {
+            display: inline-block;
+            transition: transform .3s;
+        }
+
+        .back:hover {
+            color: white;
+            transform: translateX(-4px);
+            text-shadow: 0 0 15px rgba(129,140,248,.7);
+        }
+
+        .back:hover span { transform: translateX(-5px); }
+
+        /* ERROR */
+        .error {
+            margin-bottom: 18px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            background: rgba(239,68,68,.10);
+            border: 1px solid rgba(239,68,68,.25);
+            color: #fca5a5;
+            font-size: 14px;
+            animation: errorAppear .4s ease;
+        }
+
+        @keyframes errorAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* MOBILE */
+        @media (max-width: 750px) {
+            .wrapper { min-height: auto; }
+            .welcome { display: none; }
+            .auth {
+                width: 100%;
+                padding: 35px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+</div>
+
+<div class="wrapper">
+
+    <!-- LEFT -->
+    <div class="welcome">
+        <div class="logo">DeVice</div>
+        <h2 id="welcomeTitle">Добро пожаловать</h2>
+        <div class="line"></div>
+        <p id="welcomeText">
+            Войдите в свой аккаунт и продолжите покупки в DeVice.
+        </p>
+
+        <div style="margin-top:25px;">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span id="feature1">Быстрый вход</span>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <span id="feature2">Ваш аккаунт защищён</span>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">✨</div>
+                <span id="feature3">Современный интерфейс</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH -->
+    <div class="auth">
+        <div class="auth-inner">
+
+            <div class="top">
+                <div class="language" id="language">
+                    <button class="lang active" onclick="changeLanguage('ru', this)">RU</button>
+                    <button class="lang" onclick="changeLanguage('en', this)">EN</button>
+                </div>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="form" id="loginForm">
+                <h1 class="form-title" id="loginTitle">Вход</h1>
+                <p class="form-subtitle" id="loginSubtitle">Войдите в свой аккаунт DeVice community</p>
+
+                {% if error %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="input-box">
+                        <input type="text" name="username" id="loginUsername" placeholder="Имя пользователя" required>
+                    </div>
+
+                    <div class="input-box">
+                        <input type="password" name="password" id="loginPassword" placeholder="Пароль" required>
+                    </div>
+
+                    <button type="submit" class="main-button" id="loginButton">
+                        Войти
+                    </button>
+                </form>
+
+                <div class="switch">
+                    <span id="noAccount">Нет аккаунта?</span>
+                    <a href="{{ url_for('register') }}" class="switch-link" id="registerButton">
+                        Создать аккаунт
+                    </a>
+                </div>
+
+                <a href="/" class="back">
+                    <span>←</span>
+                    <span id="backText">Назад</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentLanguage = "ru";
+
+    function changeLanguage(language, button) {
+        currentLanguage = language;
+
+        document.querySelectorAll(".lang").forEach(function(item) {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        if (language === "en") {
+            document.getElementById("welcomeTitle").textContent = "Welcome";
+            document.getElementById("welcomeText").textContent = "Sign in to your account DeVice community and continue shopping on MyStore.";
+            document.getElementById("feature1").textContent = "Fast login";
+            document.getElementById("feature2").textContent = "Your account is protected";
+            document.getElementById("feature3").textContent = "Modern interface";
+
+            document.getElementById("loginTitle").textContent = "Login";
+            document.getElementById("loginSubtitle").textContent = "Sign in to your DeVice account";
+            document.getElementById("loginUsername").placeholder = "Username";
+            document.getElementById("loginPassword").placeholder = "Password";
+            document.getElementById("loginButton").textContent = "Login";
+            document.getElementById("noAccount").textContent = "Don't have an account?";
+            document.getElementById("registerButton").textContent = "Create account";
+            document.getElementById("backText").textContent = "Back";
+        } else {
+            document.getElementById("welcomeTitle").textContent = "Добро пожаловать";
+            document.getElementById("welcomeText").textContent = "Войдите в свой аккаунт deVice community и продолжите покупки в Device.";
+            document.getElementById("feature1").textContent = "Быстрый вход";
+            document.getElementById("feature2").textContent = "Ваш аккаунт защищён";
+            document.getElementById("feature3").textContent = "Современный интерфейс";
+
+            document.getElementById("loginTitle").textContent = "Вход";
+            document.getElementById("loginSubtitle").textContent = "Войдите в свой аккаунт DeVice";
+            document.getElementById("loginUsername").placeholder = "Имя пользователя";
+            document.getElementById("loginPassword").placeholder = "Пароль";
+            document.getElementById("loginButton").textContent = "Войти";
+            document.getElementById("noAccount").textContent = "Нет аккаунта?";
+            document.getElementById("registerButton").textContent = "Создать аккаунт";
+            document.getElementById("backText").textContent = "Назад";
+        }
+    }
+</script>
+
+</body>
+</html>
