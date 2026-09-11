@@ -4,10 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 app.secret_key = "my_secret_key"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
 
 class Users(db.Model):
     __tablename__ = "users"
@@ -26,6 +28,7 @@ class Users(db.Model):
         db.String(100),
         nullable=False
     )
+
 
 class Product(db.Model):
     __tablename__ = "project"
@@ -61,9 +64,15 @@ class Product(db.Model):
         db.Float
     )
 
+
+with app.app_context():
+    db.create_all()
+
+
 @app.route("/")
 def home():
     return redirect("/login")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -89,6 +98,7 @@ def login():
         )
 
     return render_template("login.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -123,6 +133,7 @@ def register():
 
     return render_template("register.html")
 
+
 @app.route("/products")
 def products():
 
@@ -132,6 +143,7 @@ def products():
     search = request.args.get("search", "").strip()
 
     if search:
+
         all_products = Product.query.filter(
             db.or_(
                 Product.name.ilike(f"%{search}%"),
@@ -139,7 +151,9 @@ def products():
                 Product.description.ilike(f"%{search}%")
             )
         ).all()
+
     else:
+
         all_products = Product.query.all()
 
     return render_template(
@@ -148,18 +162,23 @@ def products():
         username=session["username"],
         search=search
     )
+
+
 @app.route("/product/<int:product_id>")
 def product_details(product_id):
+
     product = Product.query.get_or_404(product_id)
 
     return render_template(
         "product_details.html",
         product=product
     )
+
+
 @app.route("/add_to_cart/<int:product_id>")
 def add_to_cart(product_id):
 
-    product = Product.query.get_or_404(product_id)
+    Product.query.get_or_404(product_id)
 
     cart = session.get("cart", {})
 
@@ -170,6 +189,8 @@ def add_to_cart(product_id):
     session["cart"] = cart
 
     return redirect("/products")
+
+
 @app.route("/cart")
 def cart():
 
@@ -177,6 +198,7 @@ def cart():
 
     products = []
     total = 0
+
     for product_id, quantity in cart.items():
 
         product = Product.query.get(int(product_id))
@@ -189,11 +211,14 @@ def cart():
             })
 
             total += product.price * quantity
+
     return render_template(
         "cart.html",
         products=products,
         total=total
     )
+
+
 @app.route("/add_products", methods=["GET", "POST"])
 def get_products():
 
@@ -221,6 +246,8 @@ def get_products():
         return redirect("/products")
 
     return render_template("add_products.html")
+
+
 @app.route("/buy", methods=["GET", "POST"])
 def buy():
 
@@ -239,6 +266,8 @@ def buy():
         )
 
     return redirect("/cart")
+
+
 @app.route("/logout")
 def logout():
 
@@ -246,9 +275,6 @@ def logout():
 
     return redirect("/login")
 
+
 if __name__ == "__main__":
-
-    with app.app_context():
-        db.create_all()
-
-    app.run(debug=True)
+    app.run()
